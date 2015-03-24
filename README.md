@@ -549,10 +549,10 @@ Processing can be enabled for a single version by setting the processing flag on
 
 ## Using Amazon S3
 
-[Fog](http://github.com/fog/fog) is used to support Amazon S3. Ensure you have it in your Gemfile:
+[Fog AWS](http://github.com/fog/fog-aws) is used to support Amazon S3. Ensure you have it in your Gemfile:
 
 ```ruby
-gem "fog", "~> 1.3.1"
+gem "fog-aws"
 ```
 
 You'll need to provide your fog_credentials and a fog_directory (also known as a bucket) in an initializer.
@@ -680,6 +680,28 @@ end
 
 That's it! You can still use the `CarrierWave::Uploader#url` method to return
 the url to the file on Google.
+
+## Optimized Loading of Fog
+
+Since Carrierwave doesn't know which parts of Fog you intend to use, it will just load the entire library (unless you use e.g. fog-aws instead of fog proper). If you prefer to load fewer classes into your application, you need to load those parts of Fog yourself *before* loading CarrierWave in your Gemfile.  Ex:
+
+```ruby
+gem "fog", "~> 1.27", require: "fog/google/storage"
+gem "carrierwave"
+```
+
+A couple of notes about versions:
+* This functionality was introduced in Fog v1.20.
+* This functionality is slated for CarrierWave v0.11.
+
+If you're not relying on Gemfile entries alone and are requiring "carrierwave" anywhere, ensure you require "fog/google/storage" before it.  Ex:
+
+```ruby
+require "fog/google/storage"
+require "carrierwave"
+```
+
+When in doubt, inspect `Fog.constants` to see what has been loaded.
 
 ## Dynamic Asset Host
 
